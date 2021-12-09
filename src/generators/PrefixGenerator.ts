@@ -151,7 +151,7 @@ export class PrefixGenerator {
 				const offsetMinutes = date.getTimezoneOffset();
 
 				parts.push(
-					(offsetMinutes < 0 ? '+' : '-') +
+					(offsetMinutes <= 0 ? '+' : '-') +
 					Math.abs(offsetMinutes / 60).toString().padStart(2, '0') + ':' +
 					Math.abs(offsetMinutes % 60).toString().padStart(2, '0')
 				);
