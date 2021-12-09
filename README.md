@@ -30,7 +30,7 @@ customize or disable this behavior.
 
 ```ts
 logger.createFileTransport(LogLevel.Information, {
-	fileName: 'logs/output.log'
+    fileName: 'logs/output.log'
 });
 ```
 
