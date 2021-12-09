@@ -1,0 +1,76 @@
+site_name: Logging
+site_url: https://docs.bailey.sh/logging/
+site_author: Bailey Herbert
+site_description: >-
+  Just another logging solution for your JavaScript, TypeScript, and Node.js apps.
+
+repo_name: baileyherbert/logging
+repo_url: https://github.com/baileyherbert/logging
+edit_uri: ""
+
+theme:
+  name: material
+  custom_dir: docs/assets/overrides
+  features:
+    - navigation.top
+    - navigation.tracking
+    - navigation.sections
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      primary: light blue
+      accent: light blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      primary: light blue
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - assets/styles.css
+
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: True
+      separator: "_"
+  - admonition
+  - footnotes
+  - pymdownx.superfences
+  - pymdownx.saneheaders
+  - pymdownx.tabbed
+  - pymdownx.inlinehilite
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Introduction: index.md
+  - Guide:
+    - Logging: guide/logging.md
+    - Transports: guide/transports.md
+    - Prefixes: guide/prefixes.md
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/baileyherbert
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/baileyherbert
