@@ -232,7 +232,7 @@ export class PrefixGenerator {
 }
 
 /**
- * @internal
+ * Customizes options for prefixes.
  */
 export interface PrefixGeneratorOptions {
 
