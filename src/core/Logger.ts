@@ -43,25 +43,58 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	}
 
 	/**
+	 * The minimum level required for output to get emitted on the root logger instance. This getter walks through all
+	 * parent loggers in the hierarchy and returns the highest level.
+	 */
+	public get levelToRoot() {
+		let highestLevel = LogLevel.Trace;
+		let parent: Logger | undefined = this;
+
+		while (parent) {
+			if (typeof parent.level === 'number') {
+				if (parent.level > highestLevel) {
+					highestLevel = parent.level;
+				}
+			}
+
+			parent = parent.parent;
+		}
+
+		return highestLevel;
+	}
+
+	/**
 	 * Writes output of the specified level.
 	 *
 	 * @param level
 	 * @param args
 	 */
 	public write(level: LogLevel, ...args: any[]) {
-		if (this.isEnabled(level)) {
-			const output = {
-				logger: this,
-				level,
-				timestamp: Date.now(),
-				args
-			};
-
-			this.emit('output', output);
-			this.parent?.emit('output', output);
-		}
+		this.writeToRoot({
+			logger: this,
+			level,
+			timestamp: Date.now(),
+			args
+		});
 
 		return this;
+	}
+
+	/**
+	 * Writes the given output object to the root logger by propagating through the logger hierarchy and checking
+	 * the output against each logger's minimum logging level.
+	 *
+	 * @param output The output object to forward.
+	 * @param forceful Send to the root logger regardless of minimum logging levels.
+	 */
+	protected writeToRoot(output: LoggerOutput, forceful = false) {
+		if (forceful || this.isEnabled(output.level)) {
+			this.emit('output', output);
+
+			if (this.parent) {
+				this.parent.writeToRoot(output, forceful);
+			}
+		}
 	}
 
 	/**

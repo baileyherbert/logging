@@ -30,6 +30,34 @@ describe('Logger', function() {
 		expect(capture).toHaveBeenCalledTimes(1);
 	});
 
+	it('correctly sends output to parents', function() {
+		const topLogger = new Logger('top', LogLevel.Debug);
+		const middleLogger = topLogger.createChild('middle');
+		const topCapture = jest.fn();
+		const middleCapture = jest.fn();
+
+		topLogger.on('output', topCapture);
+		middleLogger.on('output', middleCapture);
+
+		middleLogger.trace('Test #1');
+		middleLogger.debug('Test #2');
+
+		expect(topCapture).toHaveBeenCalledTimes(1);
+		expect(middleCapture).toHaveBeenCalledTimes(2);
+
+		expect(middleLogger.level).toBe(undefined);
+		expect(middleLogger.levelToRoot).toBe(LogLevel.Debug);
+		expect(middleLogger.createChild().levelToRoot).toBe(LogLevel.Debug);
+
+		const bottomLogger = middleLogger.createChild('bottom', LogLevel.Information);
+		bottomLogger.info('Test #3');
+		bottomLogger.debug('Test #4');
+
+		expect(bottomLogger.level).toBe(LogLevel.Information);
+		expect(bottomLogger.levelToRoot).toBe(LogLevel.Information);
+		expect(topCapture).toHaveBeenCalledTimes(2);
+	});
+
 	it('emits all levels', function() {
 		const logger = new Logger();
 		const levels = new Array<LogLevel>();
