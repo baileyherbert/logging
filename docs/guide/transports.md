@@ -121,6 +121,19 @@ This event is emitted when an archived log file is deleted due to expiry.
 | -------- | -------- | ----------------------------------- |
 | `file`   | `object` | Details about the deleted log file. |
 
+## Closing transports
+
+All transports have a `close()` method that should be called when the application is being terminated, either by a
+`process.exit()` invocation or by an exit signal (such as `SIGINT`).
+
+The following example will gracefully close all transports that have been attached to the logger.
+
+```ts
+await Promise.all(
+	logger.transports.map(transport => transport.close())
+);
+```
+
 ## Creating custom transports
 
 ### Basic template
