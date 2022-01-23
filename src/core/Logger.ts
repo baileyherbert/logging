@@ -1,5 +1,6 @@
 import { EventEmitter } from '@baileyherbert/events';
 import { LogLevel } from '../enums/LogLevel';
+import { Transport } from '../main';
 import { ConsoleTransport, ConsoleTransportOptions } from '../transports/ConsoleTransport';
 import { FileTransport, FileTransportOptions } from '../transports/FileTransport';
 import { LoggerOutput } from './LoggerOutput';
@@ -19,6 +20,11 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	 * discern where those messages came from.
 	 */
 	public name?: string;
+
+	/**
+	 * An array of all transports that have been attached to this logger.
+	 */
+	private _transports = new Set<Transport>();
 
 	/**
 	 * Constructs a new `Logger` instance.
@@ -231,6 +237,31 @@ export class Logger extends EventEmitter<LoggerEvents> {
 		const transport = new FileTransport(level, options);
 		transport.attach(this);
 		return transport;
+	}
+
+	/**
+	 * @internal
+	 */
+	public _attachTransport(transport: Transport) {
+		this._transports.add(transport);
+	}
+
+	/**
+	 * @internal
+	 */
+	public _detachTransport(transport: Transport) {
+		this._transports.delete(transport);
+	}
+
+	/**
+	 * Returns an array of all active transports that are listening to this logger.
+	 */
+	public get transports(): Transport[] {
+		if (this.parent) {
+			return [...this._transports, ...this.parent.transports];
+		}
+
+		return [...this._transports];
 	}
 
 }

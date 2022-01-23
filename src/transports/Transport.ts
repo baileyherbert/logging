@@ -44,6 +44,7 @@ export abstract class Transport<S extends EventEmitterSchema = {}> extends Event
 
 			this._listeners.set(logger, listener);
 			logger.on('output', listener);
+			logger._attachTransport(this);
 
 			// @ts-ignore
 			this.emit('loggerAttached', logger);
@@ -61,6 +62,7 @@ export abstract class Transport<S extends EventEmitterSchema = {}> extends Event
 			const listener = this._listeners.get(logger)!;
 			this._listeners.delete(logger);
 			logger.removeListener('output', listener);
+			logger._detachTransport(this);
 
 			// @ts-ignore
 			this.emit('loggerDetached', logger);
