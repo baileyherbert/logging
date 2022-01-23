@@ -121,6 +121,10 @@ This event is emitted when an archived log file is deleted due to expiry.
 | -------- | -------- | ----------------------------------- |
 | `file`   | `object` | Details about the deleted log file. |
 
+#### `empty`
+
+This event is emitted when the internal write buffer is emptied.
+
 ## Closing transports
 
 All transports have a `close()` method that should be called when the application is being terminated, either by a
