@@ -55,6 +55,17 @@ const transport = new ConsoleTransport({ /* options */ });
 transport.attach(logger);
 ```
 
+## Getting attached transports
+
+The `transports` field on a logger will return an array of all attached transports, including those attached to parent
+logger(s). This is most useful for gracefully closing all attached transports:
+
+```ts
+await Promise.all(
+	logger.transports.map(transport => transport.close())
+);
+```
+
 ## Logging levels
 
 | Name          | Value | Description                                                                                                                                                                   |
