@@ -95,6 +95,24 @@ export abstract class Transport<S extends EventEmitterSchema = {}> extends Event
 
 	}
 
+	/**
+	 * Closes the transport. Returns a promise that resolves when complete.
+	 */
+	public close() {
+		this.detachAll();
+
+		return Promise.resolve();
+	}
+
+	/**
+	 * Detaches the transport from all loggers.
+	 */
+	public detachAll() {
+		for (const logger of this._listeners.keys()) {
+			this.detach(logger);
+		}
+	}
+
 }
 
 type Listener = (output: LoggerOutput) => void;

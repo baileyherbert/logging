@@ -37,6 +37,9 @@ export class FileTransport extends Transport<FileTransportEvents> {
 	protected writing: boolean;
 	protected queue: Array<LoggerOutput>;
 
+	protected available;
+	protected rotating;
+
 	public constructor(level: LogLevel, options: FileTransportOptions);
 	public constructor(options: FileTransportOptions);
 	public constructor(unknownA: LogLevel | FileTransportOptions, unknownB?: FileTransportOptions) {
@@ -59,6 +62,9 @@ export class FileTransport extends Transport<FileTransportEvents> {
 			eol: require('os').EOL === "\n" ? 'lf' : 'crlf'
 		});
 
+		this.available = true;
+		this.rotating = false;
+
 		this.currentFileSize = 0;
 		this.writing = false;
 		this.queue = [];
@@ -72,6 +78,10 @@ export class FileTransport extends Transport<FileTransportEvents> {
 	}
 
 	protected async write(lines: LoggerOutput[]): Promise<void> {
+		if (!this.available) {
+			return;
+		}
+
 		if (this.writing) {
 			this.queue.push(...lines);
 			return;
@@ -103,6 +113,9 @@ export class FileTransport extends Transport<FileTransportEvents> {
 			const queue = [...this.queue];
 			this.queue = [];
 			return this.write(queue);
+		}
+		else {
+			this.emit('empty');
 		}
 	}
 
@@ -180,10 +193,13 @@ export class FileTransport extends Transport<FileTransportEvents> {
 			// Create a new stream
 			this.stream = this.openFileStream();
 			this.currentFileSize = 0;
+			this.rotating = false;
 
 			// Resolve
 			source.setResult();
 		});
+
+		this.rotating = true;
 
 		// Write the text chunk
 		stream.end(content);
@@ -306,6 +322,29 @@ export class FileTransport extends Transport<FileTransportEvents> {
 		return this.options.fileName;
 	}
 
+	/**
+	 * Returns a promise that resolves when the transport is done writing log data to its destination.
+	 */
+	public override close() {
+		return new Promise<void>(async resolve => {
+			this.detachAll();
+
+			// Wait for rotations
+			if (this.rotating) {
+				await new Promise(r => this.once('rotated', r));
+			}
+
+			// Wait to finish writing the queue
+			if (this.queue.length > 0) {
+				await new Promise<void>(r => this.once('empty', r));
+			}
+
+			this.stream.on('finish', resolve);
+			this.stream.end();
+			this.available = false;
+		});
+	}
+
 }
 
 export interface FileTransportOptions {
@@ -383,6 +422,11 @@ type FileTransportEvents = {
 	 * Emitted when an archived log file is deleted from the disk automatically.
 	 */
 	cleaned: [RotationArchive];
+
+	/**
+	 * Emitted when the internal write queue is empty.
+	 */
+	empty: [];
 }
 
 export interface RotationFile {
