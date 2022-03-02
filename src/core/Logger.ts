@@ -27,6 +27,11 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	private _transports = new Set<Transport>();
 
 	/**
+	 * The loggers this instance is attached to (and will forward output to).
+	 */
+	private _attachedTo = new Set<Logger>();
+
+	/**
 	 * Constructs a new `Logger` instance.
 	 *
 	 * @param name
@@ -46,6 +51,10 @@ export class Logger extends EventEmitter<LoggerEvents> {
 
 		this.name = name;
 		this.level = level;
+
+		if (parent) {
+			this._attachedTo.add(parent);
+		}
 	}
 
 	/**
@@ -97,8 +106,8 @@ export class Logger extends EventEmitter<LoggerEvents> {
 		if (forceful || this.isEnabled(output.level)) {
 			this.emit('output', output);
 
-			if (this.parent) {
-				this.parent.writeToRoot(output, forceful);
+			for (const logger of this._attachedTo) {
+				logger.writeToRoot(output, forceful);
 			}
 		}
 	}
@@ -254,6 +263,24 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	}
 
 	/**
+	 * @internal
+	 */
+	public _attachToLogger(logger: Logger) {
+		if (!this._attachedTo.has(logger)) {
+			this._attachedTo.add(logger);
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	public _detachFromLogger(logger: Logger) {
+		if (logger !== this.parent) {
+			this._attachedTo.delete(logger);
+		}
+	}
+
+	/**
 	 * Returns an array of all active transports that are listening to this logger.
 	 */
 	public get transports(): Transport[] {
@@ -262,6 +289,25 @@ export class Logger extends EventEmitter<LoggerEvents> {
 		}
 
 		return [...this._transports];
+	}
+
+	/**
+	 * Attaches the given logger to this logger. The loggers will still be independent, however the given logger's
+	 * output will be cloned into this logger.
+	 *
+	 * @param logger
+	 */
+	public attach(logger: Logger) {
+		logger._attachToLogger(this);
+	}
+
+	/**
+	 * Detaches the given logger from this logger.
+	 *
+	 * @param logger
+	 */
+	public detach(logger: Logger) {
+		logger._detachFromLogger(this);
 	}
 
 }

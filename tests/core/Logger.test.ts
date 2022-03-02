@@ -104,4 +104,32 @@ describe('Logger', function() {
 			nestedChild
 		]);
 	});
+
+	it('can attach other loggers', function() {
+		const original = new Logger();
+		const merger = new Logger();
+
+		const capture = jest.fn();
+		const emitters = new Array<Logger>();
+
+		original.on('output', output => {
+			capture();
+			emitters.push(output.logger);
+		});
+
+		original.info('Control');
+		merger.info('This should not reach the original');
+
+		original.attach(merger);
+
+		original.info('Control');
+		merger.info('This should reach the original');
+
+		expect(capture).toHaveBeenCalledTimes(3);
+		expect(emitters).toEqual([
+			original,
+			original,
+			merger
+		]);
+	});
 });
