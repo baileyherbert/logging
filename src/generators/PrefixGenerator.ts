@@ -25,9 +25,6 @@ const DEFAULT_COLORS = {
 	critical: chalk.redBright
 };
 
-/**
- * @internal
- */
 export class PrefixGenerator {
 
 	protected options;
