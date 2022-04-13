@@ -8,7 +8,7 @@ export abstract class Transport<S extends EventEmitterSchema = {}> extends Event
 	/**
 	 * Specifies the minimum logging level that the transport will handle.
 	 */
-	public level = LogLevel.Information;
+	public level = LogLevel.Trace;
 
 	/**
 	 * A map of attached loggers and the internal listeners used to receive their output.
