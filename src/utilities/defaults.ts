@@ -38,9 +38,6 @@ export function getFinalOptions<T, Y extends T>(input: T | undefined, defaults: 
 	return recurse(input, defaults);
 }
 
-/**
- * @internal
- */
 export type DeepNonNullable<T> = {
 	[P in keyof T]-?: NonNullable<DeepNonNullable<T[P]>>;
 };
