@@ -211,7 +211,7 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	 *   levels.
 	 */
 	public createChild(name?: string, level?: LogLevel) {
-		return new Logger(name, level, this.parent ?? this);
+		return new Logger(name, level, this);
 	}
 
 	/**
