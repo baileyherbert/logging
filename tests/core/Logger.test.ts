@@ -132,4 +132,30 @@ describe('Logger', function() {
 			merger
 		]);
 	});
+
+	it('supports buffering', function() {
+		const root = new Logger();
+		const child = root.createChild();
+
+		const capture = jest.fn();
+		root.on('output', capture);
+
+		child.info('Test');
+		expect(capture).toHaveBeenCalledTimes(1);
+
+		child.buffer = true;
+		child.info('Test');
+		child.error('Test');
+		expect(capture).toHaveBeenCalledTimes(1);
+
+		child.flush();
+		child.info('Test');
+		child.error('Test');
+		expect(capture).toHaveBeenCalledTimes(3);
+
+		child.flush(true);
+		child.info('Test');
+		child.error('Test');
+		expect(capture).toHaveBeenCalledTimes(7);
+	});
 });

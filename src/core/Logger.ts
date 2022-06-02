@@ -22,6 +22,13 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	public name?: string;
 
 	/**
+	 * A boolean indicating whether this logger should buffer its messages instead of delivering them to its attached
+	 * transports. You'll need to use the `flush()` method to push them.
+	 * @default false
+	 */
+	public buffer = false;
+
+	/**
 	 * An array of all transports that have been attached to this logger.
 	 */
 	private _transports = new Set<Transport>();
@@ -30,6 +37,11 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	 * The loggers this instance is attached to (and will forward output to).
 	 */
 	private _attachedTo = new Set<Logger>();
+
+	/**
+	 * The buffered messages in this logger.
+	 */
+	private _bufferedMessages = new Array<[message: LoggerOutput, forceful: boolean]>();
 
 	/**
 	 * Constructs a new `Logger` instance.
@@ -104,12 +116,34 @@ export class Logger extends EventEmitter<LoggerEvents> {
 	 */
 	protected writeToRoot(output: LoggerOutput, forceful = false) {
 		if (forceful || this.isEnabled(output.level)) {
+			if (this.buffer) {
+				this._bufferedMessages.push([output, forceful]);
+				return;
+			}
+
 			this.emit('output', output);
 
 			for (const logger of this._attachedTo) {
 				logger.writeToRoot(output, forceful);
 			}
 		}
+	}
+
+	/**
+	 * Forcefully sends all buffered output, and then clears the buffer.
+	 * @param end If true, stops buffering when finished. Defaults to `false`.
+	 */
+	public flush(end = false) {
+		for (const [output, forceful] of this._bufferedMessages) {
+			this.emit('output', output);
+
+			for (const logger of this._attachedTo) {
+				logger.writeToRoot(output, forceful);
+			}
+		}
+
+		this._bufferedMessages = [];
+		this.buffer = end ? false : this.buffer;
 	}
 
 	/**
