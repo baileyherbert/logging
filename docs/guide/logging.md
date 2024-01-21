@@ -21,9 +21,9 @@ const logger = new Logger('Example', LogLevel.Information);
 You can create child loggers which forward output to the same transports:
 
 ```ts
-const child = logger.createLogger();
-const child = logger.createLogger('Child');
-const child = logger.createLogger('Child', LogLevel.Information);
+const child = logger.createChild();
+const child = logger.createChild('Child');
+const child = logger.createChild('Child', LogLevel.Information);
 ```
 
 ## Attaching transports
