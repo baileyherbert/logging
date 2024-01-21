@@ -97,7 +97,7 @@ export class FileTransport extends Transport<FileTransportEvents> {
 			);
 
 			this.currentFileSize += content.length;
-			const rotateAfter = (this.options.rotation && this.options.rotation.maxFileSize) ?? 0;
+			const rotateAfter = this.options.rotation !== false ? this.options.rotation.maxFileSize : 0;
 
 			if (rotateAfter > 0 && this.currentFileSize >= rotateAfter) {
 				await this.rotate(content);
