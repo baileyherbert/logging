@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://github.com/omaha-js/omaha" target="_blank" rel="noopener noreferrer">
+    <a href="https://bailey.sh/" target="_blank" rel="noopener noreferrer">
         <img width="96" height="96" src="https://i.bailey.sh/mA6G3zHDcE.png" alt="Bailey Herbert Logo">
     </a>
 </p>
