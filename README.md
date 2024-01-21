@@ -1,49 +1,67 @@
-# Logging
+<p align="center">
+    <a href="https://github.com/omaha-js/omaha" target="_blank" rel="noopener noreferrer">
+        <img width="96" height="96" src="https://i.bailey.sh/mA6G3zHDcE.png" alt="Bailey Herbert Logo">
+    </a>
+</p>
+<p align="center">
+    <a href="https://github.com/baileyherbert/logging" target="_blank" rel="noopener noreferrer">github</a> &nbsp;/&nbsp;
+    <a href="https://www.npmjs.com/package/@baileyherbert/logging" target="_blank" rel="noopener noreferrer">npm</a> &nbsp;/&nbsp;
+    <a href="https://docs.bailey.sh/logging/" target="_blank" rel="noopener noreferrer">documentation</a>
+</p>
 
-This package offers a logging solution based on a modular delivery concept. Simply create a logger instance, attach a
-delivery transport (such as console, file, or your own), and start logging!
+# logging
 
-## Installation
+An elegant logging solution for TypeScript built on a hierarchical composite pattern.
 
-```plain
+```
 npm install @baileyherbert/logging
 ```
 
-## Example
+## examples
 
-Create a logger instance. This is what we'll use to actually write output.
+### creating the root logger
 
-```ts
-const logger = new Logger();
-```
-
-Create a console transport. This will print our output to the console. You can define a minimum log level for output.
-We'll use `Trace` here which will capture all levels of output.
+Each application needs at least one root logger instance.
 
 ```ts
-logger.createConsoleTransport(LogLevel.Trace);
+const rootLogger = new Logger();
 ```
 
-Create a file transport. This will send our output into a file. We'll set a minimum log level of `Information` to keep
-the logs minimal. Please note that the file transport has automatic log rotation enabled by default, but you can
-customize or disable this behavior.
+### attaching transports to the root logger
+
+The root logger is responsible for piping its output into one or more transports. The example below will create and attach a [console transport](https://docs.bailey.sh/logging/latest/guide/transports/) to the logger, which writes logs directly to the console. This works in a browser environment.
 
 ```ts
-logger.createFileTransport(LogLevel.Information, {
-    fileName: 'logs/output.log'
-});
+rootLogger.createConsoleTransport();
 ```
 
-Done! Now use the logger to write output to both the console and log file at once.
+### creating child loggers
+
+Each service in your application should have its own logger instance. These are called child loggers, and they are used to automatically prefix output from services with their names.
 
 ```ts
-logger.trace('Starting example program');
-logger.info('Hello world');
+const logger = rootLogger.createChild('ServiceName');
 ```
 
-Both of those transports have many customization options, and you can also create your own. Check the
-[transports guide](https://docs.bailey.sh/logging/latest/guide/transports/) to learn more.
+### writing logs
 
-## Documentation
+Loggers expose methods for each supported severity level.
 
-- [Documentation website](https://docs.bailey.sh/logging/)
+```ts
+logger.trace();
+logger.debug();
+logger.info();
+logger.warning();
+logger.error();
+logger.critical();
+```
+
+These methods work identically to `console.log()`. You can pass multiple parameters of any type, and can pass a string for formatting.
+
+```ts
+logger.info('Logged in as %s from %s', username, ip);
+```
+
+## license
+
+MIT
